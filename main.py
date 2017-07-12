@@ -1,9 +1,10 @@
 from flask import Flask, request, redirect, render_template
 from flask_sqlalchemy import SQLAlchemy
+import pymysql
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://build-a-blog:build-a-blog@localhost:8889/build-a-blog'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blog:blog@localhost:8889/blog'
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
 
@@ -21,20 +22,28 @@ class BlogEntry(db.Model):
         #self.completed = False
 
 
+@app.route('/add_a_new_post', methods=['POST'])
+def add_a_new_post():
+
+        if request.method == 'POST':
+            entry_title = request.form['title']
+            entry_text  = request.form['entry']
+            new_post = BlogEntry(entry_title, entry_text)
+            db.session.add(new_post)
+            db.session.commit()
+
+        return(render_template('add_a_new_post.html',title="Add a New Post"))
+
+
+
 @app.route('/', methods=['POST', 'GET'])
 def index():
 
-    if request.method == 'POST':
-        entry_title = request.form['title']
-        entry_text  = request.form['text']
-        new_post = BlogEntry(entry_title, entry_text)
-        db.session.add(new_post)
-        db.session.commit()
 
     blogs = BlogEntry.query.all()
     #tasks = Task.query.filter_by(completed=False).all()
     #completed_tasks = Task.query.filter_by(completed=True).all()
-    return render_template('add_a_new_post.html',title="Add a New Post",
+    return render_template(
         blogs=blogs) #completed_tasks=completed_tasks)
 
 
@@ -49,6 +58,14 @@ def index():
 #
 #     return redirect('/')
 
+@app.route("/updatedb")
+def update_DB():
+    db.drop_all()
+    db.create_all()
+    return "updated db"
+    #return redirect("/")
 
 if __name__ == '__main__':
-app.run()
+    #db.drop_all()
+    #db.create_all()
+    app.run()
