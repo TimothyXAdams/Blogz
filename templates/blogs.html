@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  </head>
+  <body>
+
+
+        <hr />
+
+        {% if blogs|length == 0 %}
+        <p>Your blog is empty</p>
+        {% else %}
+
+            <ul>
+                {% for blog in blogs %}
+                <li>{{blog.title}}<br>{{blog.entry}}<br><br>
+                    <form method="POST" style="display:inline-block;">
+                        <input type="hidden" action="#/delete-task" name="blog-id" value="{{blog.id}}" />
+                        <input type="submit" value="Save" />
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+
+        {% endif %}
+
+        <hr />
+
+  </body>
+</html>  
