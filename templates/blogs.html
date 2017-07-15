@@ -15,7 +15,7 @@
                 {% for blog in blogs %}
                 <li>{{blog.title}}<br>{{blog.entry}}<br><br>
                     <form method="POST" style="display:inline-block;">
-                        <input type="hidden" action="#/delete-task" name="blog-id" value="{{blog.id}}" />
+                        <input type="hidden" action="#/add_a_new_post" name="blog-id" value="{{blog.id}}" />
                         <input type="submit" value="Save" />
                     </form>
                 </li>
@@ -27,4 +27,4 @@
         <hr />
 
   </body>
-</html>  
+</html>
