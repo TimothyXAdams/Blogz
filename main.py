@@ -58,13 +58,15 @@ def index():
 
 @app.route("/blog")
 def show_blogs():
-    blog_id = request.args.get('id')
-    if(blog_id != ''): #if the blog isn't empty
-        blog = BlogEntry.query.get(blog_id)
-        return render_template('blog.html', title="entry_title", text=entry_text)
 
-    blogs = BlogEntry.query.all()
-    return render_template('all_blogs.html', title="entry_title", blogs=blogs) #completed_tasks=completed_tasks)
+    blog_id = request.args.get('id')
+    if blog_id: #if the blog isn't empty
+        blog = BlogEntry.query.get(blog_id)
+        # return str(blog.title) + str(blog.entry)
+        return render_template('blog.html', title=blog.title, blog=blog)
+    else:
+        blogs = BlogEntry.query.all()
+        return render_template('all_blogs.html', title="entry_title", blogs=blogs) #completed_tasks=completed_tasks)
 
 
 @app.route("/updatedb")

@@ -1,32 +1,29 @@
 {% extends "base.html" %}
 
-<!DOCTYPE html>
-<html>
-  <head>
-  </head>
-  <body>
+{% block content %}
+  <hr />
 
 
-        <hr />
+        <h1>
+          {{blog.title}}
+        </h1>
 
-        {% if blogs|length == 0 %}
-        <p>Your blog is empty</p>
-        {% else %}
+        <p>
+          {{blog.entry}}
+        </p>
+<!--
 
             <ul>
-                {% for blog in blogs %}
+
                 <li>{{blog.title}}<br>{{blog.entry}}<br><br>
                     <form method="POST" style="display:inline-block;">
                         <input type="hidden" action="#/add_a_new_post" name="blog-id" value="{{blog.id}}" />
                         <input type="submit" value="Save" />
                     </form>
                 </li>
-                {% endfor %}
+
             </ul>
+ -->
 
-        {% endif %}
-
-        <hr />
-
-  </body>
-</html>
+    <hr />
+{% endblock %}
