@@ -43,8 +43,9 @@ def add_a_new_post():
                 flash("Error. Your blog entry requires a title and a text.")
                 return render_template('add_a_new_post', title="Enter your blog here.", entry_title=entry_title, entry_text=entry_text)
 
-            else: #it was a GET request, not a POST
-                return render_template('add_a_new_post')
+        else: #it was a GET request, not a POST
+            return render_template('add_a_new_post')
+
         return(render_template('add_a_new_post.html',title="Add a New Post"))
 
 
@@ -55,29 +56,16 @@ def index():
     return redirect("/blog")
 
 
-
 @app.route("/blog")
 def show_blogs():
     blog_id = request.args.get('id')
     if(blog_id != ''): #if the blog isn't empty
         blog = BlogEntry.query.get(blog_id)
-        return render_template('one_blog.html', title="entry_title", text=entry_text)
+        return render_template('blog.html', title="entry_title", text=entry_text)
 
     blogs = BlogEntry.query.all()
-    #tasks = Task.query.filter_by(completed=False).all()
-    #completed_tasks = Task.query.filter_by(completed=True).all()
-    return render_template('all_blogs.html', title='Your Blog', blogs=blogs) #completed_tasks=completed_tasks)
+    return render_template('all_blogs.html', title="entry_title", blogs=blogs) #completed_tasks=completed_tasks)
 
-# @app.route('/delete-task', methods=['POST'])
-# def delete_task():
-#
-#     task_id = int(request.form['task-id'])
-#     task = Task.query.get(task_id)
-#     task.completed = True
-#     db.session.add(task)
-#     db.session.commit()
-#
-#     return redirect('/')
 
 @app.route("/updatedb")
 def update_DB():
@@ -85,6 +73,7 @@ def update_DB():
     db.create_all()
     return "updated db"
     #return redirect("/")
+
 
 if __name__ == '__main__':
     #db.drop_all()
