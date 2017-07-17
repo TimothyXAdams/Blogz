@@ -1,23 +1,22 @@
 {% extends "base.html" %}
 
+
 {% block content %}
-    <h1>This Blog</h1>
-    <form action='/' method='post'>
+    <h1>Add a new post</h1>
+    <form action='/add_a_new_post' method='post'>
         <label>
             New Blog Entry:
-            <input type="text" name='title' />
-            <input type="text" name='entry' />
+            <input type="text" name='title' value='{{entry_title}}' />
+            <input type="text" name='entry' value='{{entry_text}}' />
         </label>
         <input type="submit" value='Add Blog Entry' />
     </form>
 
     <hr />
 
-    {% if blogs|length == 0 %}
-    <p>Your blog is empty</p>
-    {% else %}
 
-        <ul>
+
+        <!-- <ul>
             {% for blog in blogs %}
             <li>{{blog.title}}{{blog.entry}}
                 <form method="POST" style="display:inline-block;">
@@ -26,10 +25,10 @@
                 </form>
             </li>
             {% endfor %}
-        </ul>
+        </ul> -->
 
-    {% endif %}
+
 
     <hr />
 
-{% endblock %}
+{% endblock %} -->
