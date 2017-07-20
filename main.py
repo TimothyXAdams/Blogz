@@ -4,12 +4,13 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blog:blog@localhost:8889/blog'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:blogz@localhost:8889/blogz'
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
 app.secret_key = 'hxixjx'
 
-class BlogEntry(db.Model):
+
+class Blog(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255))
@@ -25,6 +26,19 @@ class BlogEntry(db.Model):
             return True
         else:
             return False
+
+
+class User(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(20), unique=True)
+    password = db.Column(db.String(20))
+    blogs = db.relationship('Blog', backref='owner')
+
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
+
 
 @app.route('/add_a_new_post', methods=['POST', 'GET'])
 def add_a_new_post():
@@ -71,13 +85,26 @@ def show_blogs():
     return render_template('all_blogs.html', title="entry_title", blogs=blogs) #completed_tasks=completed_tasks)
 
 
-@app.route("/updatedb")
+@app.route("/updatedb") #Delete all blogs
 def update_DB():
 
     db.drop_all()
     db.create_all()
     #return "updated db"
     return redirect("/")
+
+
+@app.route("/signup")
+
+@app.route("/login")
+
+@app.route("/index")
+
+@app.route("/logout")
+def logout():
+    '''
+    We'll have a logout function that handles a POST request to /logout and redirects the user to /blog after deleting the username from the session.
+    '''
 
 
 if __name__ == '__main__':
