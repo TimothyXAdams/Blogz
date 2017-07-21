@@ -41,6 +41,13 @@ class User(db.Model):
         self.password = password
 
 
+@app.before_request()
+def require_login():
+    allowed_routes = ['login', 'show_blogs', 'index', 'signup']
+    if request.endpoint not in allowed_routes and 'email' not in session:
+        return redirect('/login')
+
+
 @app.route('/add_a_new_post', methods=['POST', 'GET'])
 def add_a_new_post():
 
