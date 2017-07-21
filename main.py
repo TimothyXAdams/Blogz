@@ -44,7 +44,7 @@ class User(db.Model):
 @app.before_request()
 def require_login():
     allowed_routes = ['login', 'show_blogs', 'index', 'signup']
-    if request.endpoint not in allowed_routes and 'email' not in session:
+    if request.endpoint not in allowed_routes and 'username' not in session:
         return redirect('/login')
 
 
@@ -73,8 +73,8 @@ def add_a_new_post():
 
 @app.route('/', methods=['POST', 'GET'])
 def index():
-
-    return redirect("/blog")
+    return render_template("index.html")
+    #return redirect("/blog")
 
 
 @app.route("/blog")
