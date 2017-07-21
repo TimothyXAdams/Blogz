@@ -15,11 +15,12 @@ class Blog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255))
     entry = db.Column(db.String(255))
-    #completed = db.Column(db.Boolean)
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    def __init__(self, title, entry):
+    def __init__(self, title, entry, owner):
         self.title = title
         self.entry = entry
+        self.owner = owner
 
     def is_valid(self):
         if self.title and self.entry :
@@ -46,7 +47,7 @@ def add_a_new_post():
         if request.method == 'POST':
             entry_title = request.form['title']
             entry_text  = request.form['entry']
-            new_post = BlogEntry(entry_title, entry_text)
+            new_post = Blog(entry_title, entry_text, owner)
 
             if new_post.is_valid() == True:
                 db.session.add(new_post)
@@ -74,37 +75,94 @@ def show_blogs():
 
     blog_id = request.args.get('id')
     if blog_id: #if the blog isn't empty
-        blog = BlogEntry.query.get(blog_id)
+        blog = Blog.query.get(blog_id)
         if blog:
         # return str(blog.title) + str(blog.entry)
             return render_template('blog.html', title=blog.title, blog=blog)
         else:
             flash("Invalid Blog ID")
 
-    blogs = BlogEntry.query.all()
+    blogs = Blog.query.all()
     return render_template('all_blogs.html', title="entry_title", blogs=blogs) #completed_tasks=completed_tasks)
 
 
-@app.route("/updatedb") #Delete all blogs
+@app.route("/updatedb") #Initialize database
 def update_DB():
-
     db.drop_all()
     db.create_all()
-    #return "updated db"
     return redirect("/")
 
 
+
+@app.route('/login', methods=['POST', 'GET'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user = User.query.filter_by(username=username).first()
+        if user and user.password == password:
+            session['username'] = username
+            flash("Logged in")
+            return redirect('/')
+        else:
+            if not user:
+                flash('Username does not exist', 'error')
+                #if not user, don't bother checking password
+                return render_template('login.html')
+            if user.password != password:
+                flash('Incorrect password', 'error')
+                return render_template('login.html')
+
+
 @app.route("/signup")
+def signup():
+    return render_template('signup.html')
 
-@app.route("/login")
 
-@app.route("/index")
+#Check username and password
+@app.route("/chkform", methods=['POST'])
+def chkform():
+    username_error = "" #initialize error as empty string
+    password_error = ""
+    chkpwd_error   = ""
+    email_error    = ""
 
-@app.route("/logout")
+    username = request.form["username"]
+    if len(username) <3 or len(username) > 20:
+    	username_error = "You must enter a valid user name"
+
+    password  =request.form["password"]
+    if len(password) <3 or len(password) > 20:
+    	password_error = "Invalid password"
+
+    chkpwd = request.form["chkpwd"]
+    if chkpwd != password:
+    	chkpwd_error = "Password mismatch"
+
+    emailaddr = request.form["emailaddr"]
+    if emailaddr: #If it's not empty, since it's optional
+        if " " in emailaddr:
+            email_error = "Email cannot contain spaces"
+        if len(emailaddr) < 3 or len(emailaddr) >20:
+            email_error = "Email must be 3 - 20 characters"
+        if "@" not in emailaddr or "." not in emailaddr:
+            email_error = "Make sure email address is valid"
+
+    if username_error or password_error or chkpwd_error or email_error:
+        return render_template("user_signup_form.html", username_error=username_error, password_error=password_error, chkpwd_error=chkpwd_error, email_error=email_error, username=username, password=password, emailaddr=emailaddr)
+    else:
+        return render_template("welcome.html", username=username)
+
+
+
+
+@app.route("/logout", methods=['POST'])
 def logout():
     '''
     We'll have a logout function that handles a POST request to /logout and redirects the user to /blog after deleting the username from the session.
     '''
+    del session['email']
+    return redirect('/blog')
 
 
 if __name__ == '__main__':
