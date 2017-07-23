@@ -12,7 +12,7 @@
         <h1>
             User Signup
         </h1>
-            <form action="/chkform" method="post">
+            <form action="/chkform" method = "post">
                 <label for="username">Username</label>
                 <input name="username" type="text" value={{username}}>
                 <label class="error">{{username_error}}</label>
@@ -25,9 +25,9 @@
                 <input name="chkpwd" type="password">
                 <label class="error">{{chkpwd_error}}</label>
                 <br>
-                <!-- <label for="emailaddr">Email Address</label>
+                <label for="emailaddr">Email Address</label>
                 <input name="emailaddr" type="text" value={{emailaddr}}>
-                <label class="error">{{email_error}}</label> -->
+                <label class="error">{{email_error}}</label>
                 <br>
                 <input  value="Sign up!" type="submit">
             </form>

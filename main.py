@@ -1,9 +1,10 @@
-from flask import Flask, request, redirect, render_template, flash
+from flask import Flask, request, redirect, render_template, flash, session
 from flask_sqlalchemy import SQLAlchemy
 #import pymysql
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:blogz@localhost:8889/blogz'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:blogz@localhost:8889/blogz'
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
@@ -32,7 +33,7 @@ class Blog(db.Model):
 class User(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), unique=True)
+    username = db.Column(db.String(20), unique=False)
     password = db.Column(db.String(20))
     blogs = db.relationship('Blog', backref='owner')
 
@@ -41,9 +42,12 @@ class User(db.Model):
         self.password = password
 
 
-@app.before_request()
+# class blog_entry(db.Model):
+#         id = db.Column(db.Integer, primary_key=True)
+
+@app.before_request
 def require_login():
-    allowed_routes = ['login', 'show_blogs', 'index', 'signup']
+    allowed_routes = ['login', 'show_blogs', 'index', 'signup', 'updatedb', 'chkform']
     if request.endpoint not in allowed_routes and 'username' not in session:
         return redirect('/login')
 
@@ -94,9 +98,16 @@ def show_blogs():
 
 
 @app.route("/updatedb") #Initialize database
-def update_DB():
+def updatedb():
+    print("entering updatedb")
     db.drop_all()
     db.create_all()
+    # testuser = User("Tim", "password")
+    # testpost = Blog("A Blog Post", "This is the content", testuser)
+    # db.session.add(testuser)
+    # db.session.add(testpost)
+    # db.session.commit()
+    print("exiting updatedb")
     return redirect("/")
 
 
@@ -115,14 +126,17 @@ def login():
             if not user:
                 flash('Username does not exist', 'error')
                 #if not user, don't bother checking password
-                return render_template('login.html')
+                #return render_template('login.html')
             if user.password != password:
                 flash('Incorrect password', 'error')
-                return render_template('login.html')
+                #return render_template('login.html')
+    return render_template('login.html') #Fallthrough, or User arrived with GET request
+
 
 
 @app.route("/signup")
 def signup():
+
     return render_template('signup.html')
 
 
@@ -146,19 +160,24 @@ def chkform():
     if chkpwd != password:
     	chkpwd_error = "Password mismatch"
 
-    emailaddr = request.form["emailaddr"]
-    if emailaddr: #If it's not empty, since it's optional
-        if " " in emailaddr:
-            email_error = "Email cannot contain spaces"
-        if len(emailaddr) < 3 or len(emailaddr) >20:
-            email_error = "Email must be 3 - 20 characters"
-        if "@" not in emailaddr or "." not in emailaddr:
-            email_error = "Make sure email address is valid"
+    # emailaddr = request.form["emailaddr"]
+    # if emailaddr: #If it's not empty, since it's optional
+    #     if " " in emailaddr:
+    #         email_error = "Email cannot contain spaces"
+    #     if len(emailaddr) < 3 or len(emailaddr) >20:
+    #         email_error = "Email must be 3 - 20 characters"
+    #     if "@" not in emailaddr or "." not in emailaddr:
+    #         email_error = "Make sure email address is valid"
 
     if username_error or password_error or chkpwd_error or email_error:
-        return render_template("user_signup_form.html", username_error=username_error, password_error=password_error, chkpwd_error=chkpwd_error, email_error=email_error, username=username, password=password, emailaddr=emailaddr)
+        return render_template("signup.html", username_error=username_error, password_error=password_error, chkpwd_error=chkpwd_error, email_error=email_error, username=username, password=password, emailaddr=emailaddr)
     else:
-        return render_template("welcome.html", username=username)
+        new_user = User(username, password)
+        db.session.add(new_user)
+        db.session.commit()
+        session['new_user.username'] = username
+
+        return render_template("all_blogs.html", username=username)
 
 
 
@@ -166,9 +185,9 @@ def chkform():
 @app.route("/logout", methods=['POST'])
 def logout():
     '''
-    We'll have a logout function that handles a POST request to /logout and redirects the user to /blog after deleting the username from the session.
+    Logout function handles a POST request to /logout and redirects the user to /blog after deleting the username from the session.
     '''
-    del session['email']
+    del session['username']
     return redirect('/blog')
 
 
