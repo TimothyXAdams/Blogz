@@ -92,7 +92,6 @@ def add_a_new_post():
 @app.route("/blog")
 def show_blogs():
 
-    print(990000000000000000000000000000000000000)
     blog_id = request.args.get('id')
     if blog_id: #if the blog isn't empty
         blog = Blog.query.get(blog_id)
@@ -134,23 +133,26 @@ def updatedb():
 def login():
 
     #session['username'] = ""#Log out current user, if any
+    user = ""
 
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
         user = User.query.filter_by(username=username).first()
-        if user and user.password == password:
-            session['username'] = username
-            flash("Logged in")
-            return redirect('/')
+
+        if user:
+            if user.password == password:
+                session['username'] = username
+                flash("Logged in")
+                return redirect('/')
         else:
             if not user:
                 flash('Username does not exist', 'error')
                 #if not user, don't bother checking password
-                #return render_template('login.html')
-            if user.password != password:
-                flash('Incorrect password', 'error')
-                #return render_template('login.html')
+                return render_template('login.html')
+        if user.password != password:
+            flash('Incorrect password', 'error')
+            #return render_template('login.html')
     return render_template('login.html') #Fallthrough, or User arrived with GET request
 
 
