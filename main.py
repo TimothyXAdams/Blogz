@@ -52,49 +52,67 @@ def require_login():
         return redirect('/login')
 
 
+@app.route('/', methods=['POST', 'GET'])
+def index():
+
+    userlist = User.query.all()
+
+    return render_template("index.html", userlist=userlist)
+    #return redirect("/blog")
+
+
 @app.route('/add_a_new_post', methods=['POST', 'GET'])
 def add_a_new_post():
 
-        if request.method == 'POST':
-            entry_title = request.form['title']
-            entry_text  = request.form['entry']
-            new_post = Blog(entry_title, entry_text, owner)
+    if 'username' not in session: #No user logged in
+        flash('Please log in or create an account', 'error')
+        return render_template('login.html') #Fallthrough, or User arrived with GET request
 
-            if new_post.is_valid() == True:
-                db.session.add(new_post)
-                db.session.commit()
-                url = "/blog?id=" + str(new_post.id)
-                return redirect(url)
-            else: #if the validation came up False
-                flash("Error. Your blog entry requires a title and a text.")
-                return render_template('add_a_new_post.html', title="Enter your blog here.", entry_title=entry_title, entry_text=entry_text)
+    owner = User.query.filter_by(username=session['username']).first()
 
-        else: #it was a GET request, not a POST
-            return render_template('add_a_new_post.html',title="Add a New Post")
+    if request.method == 'POST':
+        entry_title = request.form['title']
+        entry_text  = request.form['entry']
+        new_post = Blog(entry_title, entry_text, owner)
 
+        if new_post.is_valid() == True:
+            db.session.add(new_post)
+            db.session.commit()
+            url = "/blog?id=" + str(new_post.id)
+            return redirect(url)
+        else: #if the validation came up False
+            flash("Error. Your blog entry requires a title and a text.")
+            return render_template('add_a_new_post.html', title="Enter your blog here.", entry_title=entry_title, entry_text=entry_text)
 
+    else: #it was a GET request, not a POST
+        return render_template('add_a_new_post.html',title="Add a New Post")
 
-
-@app.route('/', methods=['POST', 'GET'])
-def index():
-    return render_template("index.html")
-    #return redirect("/blog")
 
 
 @app.route("/blog")
 def show_blogs():
 
+    print(990000000000000000000000000000000000000)
     blog_id = request.args.get('id')
     if blog_id: #if the blog isn't empty
         blog = Blog.query.get(blog_id)
         if blog:
         # return str(blog.title) + str(blog.entry)
+
             return render_template('blog.html', title=blog.title, blog=blog)
         else:
             flash("Invalid Blog ID")
 
+    #TODO check whether name arg exists
+    #If name arg exists, find user from database
+    #then render_template with user's blogs passed in
+    username = request.args.get('name')
+    if username:
+        user = User.query.filter_by(username=username).first()
+        return render_template('all_blogs.html', title="entry_title", blogs=user.blogs)
+
     blogs = Blog.query.all()
-    return render_template('all_blogs.html', title="entry_title", blogs=blogs) #completed_tasks=completed_tasks)
+    return render_template('all_blogs.html', title="entry_title", blogs=blogs)
 
 
 @app.route("/updatedb") #Initialize database
@@ -114,6 +132,9 @@ def updatedb():
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
+
+    #session['username'] = ""#Log out current user, if any
+
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -136,6 +157,8 @@ def login():
 
 @app.route("/signup")
 def signup():
+
+    #session['username'] = "" #Log out current user, if any
 
     return render_template('signup.html')
 
@@ -182,12 +205,13 @@ def chkform():
 
 
 
-@app.route("/logout", methods=['POST'])
+@app.route("/logout", methods=['POST', 'GET'])
 def logout():
     '''
     Logout function handles a POST request to /logout and redirects the user to /blog after deleting the username from the session.
     '''
     del session['username']
+    flash('You have been logged out.', 'error')
     return redirect('/blog')
 
 

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Your blog</h1>
+    <h1>Blog posts</h1>
     <ul>
         {% for blog in blogs %}
             <li>
@@ -9,6 +9,7 @@
                     <a href="/blog?id={{ blog.id }}">{{ blog.title }}</a>
                 </h2>
                 <p>{{ blog.entry }}</p>
+                <h6>Written by {{ blog.owner.username }}</h6>
             </li>
         {% endfor %}
     </ul>

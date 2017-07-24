@@ -1,16 +1,8 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>User Signup</title>
-        <style>
-            .error {
-                color: red;
-            }
-        </style>
-    </head>
-    <body>
+{% extends "base.html" %}
+
+{% block content %}
         <h1>
-            User Signup
+            Create account
         </h1>
             <form action="/chkform" method="post">
                 <label for="username">Username</label>
@@ -31,9 +23,4 @@
                 <br>
                 <input  value="Sign up!" type="submit">
             </form>
-        {% block content %}
-
         {% endblock %}
-
-    </body>
-</html>
