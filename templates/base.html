@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
     <head>
-        <title>{{title}}</title>
+        <title>Blogz!</title>
     </head>
 <body>
 
@@ -19,8 +19,11 @@
       </nav>
     </header>
 
+
     {% with messages = get_flashed_messages() %}
+
       {% if messages %}
+
         <ul class=flashes>
         {% for message in messages %}
             <li>{{ message }}</li>

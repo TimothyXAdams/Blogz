@@ -47,7 +47,7 @@ class User(db.Model):
 
 @app.before_request
 def require_login():
-    allowed_routes = ['login', 'show_blogs', 'index', 'signup', 'updatedb', 'chkform']
+    allowed_routes = ['login', 'blog', 'index', 'signup', 'updatedb', 'chkform']
     if request.endpoint not in allowed_routes and 'username' not in session:
         return redirect('/login')
 
@@ -90,7 +90,7 @@ def add_a_new_post():
 
 
 @app.route("/blog")
-def show_blogs():
+def blog():
 
     blog_id = request.args.get('id')
     if blog_id: #if the blog isn't empty
@@ -185,17 +185,9 @@ def chkform():
     if chkpwd != password:
     	chkpwd_error = "Password mismatch"
 
-    # emailaddr = request.form["emailaddr"]
-    # if emailaddr: #If it's not empty, since it's optional
-    #     if " " in emailaddr:
-    #         email_error = "Email cannot contain spaces"
-    #     if len(emailaddr) < 3 or len(emailaddr) >20:
-    #         email_error = "Email must be 3 - 20 characters"
-    #     if "@" not in emailaddr or "." not in emailaddr:
-    #         email_error = "Make sure email address is valid"
 
     if username_error or password_error or chkpwd_error or email_error:
-        return render_template("signup.html", username_error=username_error, password_error=password_error, chkpwd_error=chkpwd_error, email_error=email_error, username=username, password=password, emailaddr=emailaddr)
+        return render_template("signup.html", username_error=username_error, password_error=password_error, chkpwd_error=chkpwd_error, username=username, password=password)
     else:
         new_user = User(username, password)
         db.session.add(new_user)
@@ -212,12 +204,11 @@ def logout():
     '''
     Logout function handles a POST request to /logout and redirects the user to /blog after deleting the username from the session.
     '''
+    print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXt")
     del session['username']
     flash('You have been logged out.', 'error')
     return redirect('/blog')
 
 
 if __name__ == '__main__':
-    #db.drop_all()
-    #db.create_all()
     app.run()
